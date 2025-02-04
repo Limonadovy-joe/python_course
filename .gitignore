@@ -1,0 +1,56 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment (venv)
+venv/
+env/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Pip and Poetry dependencies
+*.lock
+pip-wheel-metadata/
+
+# Testing
+.tox/
+.nox/
+.coverage
+htmlcov/
+.cache/
+.pytest_cache/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# MyPy type checker
+.mypy_cache/
+
+# PyCharm
+.idea/
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# Logs and debug files
+logs/
+*.log
+debug.log
+
+# Secrets / Credentials (ALWAYS use environment variables instead)
+.env
+*.env
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.swp
+*.swo

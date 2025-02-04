@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "python_course"
+version = "0.1.0"
+description = "A Python course project with examples for basics, OOP, and collections"
+authors = ["josefnovak.work@gmail.com"]
+
+[tool.poetry.dependencies]
+python = "3.10.15"
+requests = "2.31.0"
+numpy = "1.24.4"
+pandas = "2.1.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.0" # Or any other testing dependencies
+
+[build-system]
+requires = ["setuptools>=42"]
+build-backend = "setuptools.build_meta"

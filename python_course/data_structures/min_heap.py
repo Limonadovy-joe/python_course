@@ -9,7 +9,7 @@ class MinHeap(Generic[V]):
 
     def __init__(self, compare: Optional[CompareFunction[V]] = None):
         self.container: List[V] = []
-        self.compare: CompareFunction[V] = (
+        self._compare: CompareFunction[V] = (
             compare
             if compare is not None
             else lambda x, y: (-1 if x < y else 1 if x > y else 0)
@@ -21,6 +21,9 @@ class MinHeap(Generic[V]):
     @property
     def length(self) -> int:
         return len(self.container)
+
+    def compare(self, x: V, y: V) -> Ordering:
+        return self._compare(x, y)
 
     def is_empty(self) -> bool:
         return len(self.container) == 0

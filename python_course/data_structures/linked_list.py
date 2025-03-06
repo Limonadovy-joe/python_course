@@ -1,4 +1,5 @@
-from typing import Generic, TypeVar, Optional, Protocol, Union, Callable
+from dataclasses import dataclass
+from typing import Generic, TypeVar, Optional, Protocol, Union, Callable, Generator
 
 
 T = TypeVar("T")
@@ -10,7 +11,24 @@ class NodeInterface(Protocol[T]):
     next: Optional["NodeInterface[T]"]
 
 
-OptionalNode = Optional[NodeInterface]
+OptionalNode = Optional[NodeInterface[T]]
+
+
+class ExtendedNodeInterface(Protocol[T]):
+    value: T
+    next: Optional["ExtendedNodeInterface[T]"]
+    prev: Optional["ExtendedNodeInterface[T]"]
+
+
+OptionalExtNode = Optional[ExtendedNodeInterface[T]]
+
+
+@dataclass
+class NodeInfo(Generic[T]):
+    value: T
+    index: int
+    next: ExtendedNodeInterface = None
+    prev: ExtendedNodeInterface = None
 
 
 class Node(Generic[T], NodeInterface[T]):
@@ -54,19 +72,6 @@ class LinkedList(Generic[T]):
     def __decrement(self, value):
         self.length = self.length - value
 
-    def append(self, value: T):
-        new_node = Node(value)
-
-        if self.is_empty():
-            self.head = new_node
-            self.tail = self.head
-        else:
-            self.tail.next = new_node
-            self.tail = new_node
-
-        self.__increment(1)
-        return self
-
     def prepend(self, value: T):
         new_node = Node(value)
 
@@ -83,6 +88,40 @@ class LinkedList(Generic[T]):
 
     def delete(self, value: T, all_occurrences=True) -> OptionalNode:
         return self.delete_by_value(value, all_occurrences)
+
+    def append(self, value: T):
+        new_node = Node(value)
+
+        if self.is_empty():
+            self.head = new_node
+            self.tail = self.head
+        else:
+            self.tail.next = new_node
+            self.tail = new_node
+
+        self.__increment(1)
+        return self
+
+    def traverse(self) -> Generator[NodeInfo, None, None]:
+
+        index = 0
+        prev_node = None
+        current_node = self.head
+        next_node = None
+
+        while current_node:
+            next_node = current_node.next
+
+            yield NodeInfo(
+                current_node.value,
+                index,
+                next_node,
+                prev_node,
+            )
+
+            index = index + 1
+            prev_node = current_node
+            current_node = next_node
 
     def delete_by_value(self, value: T, all_occurrences=True) -> OptionalNode:
         if self.is_empty():

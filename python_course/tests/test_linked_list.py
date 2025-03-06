@@ -178,3 +178,24 @@ def test_to_array(populated_linked_list, expected_array):
 def test_reverse(populated_linked_list, expected_structure):
     populated_linked_list.reverse()
     assert str(populated_linked_list) == expected_structure
+
+
+@pytest.mark.parametrize(
+    "populated_linked_list, expected_structure",
+    [
+        (
+            [1, 2, 3],  # Initial linked list
+            [
+                {"value": 1, "index": 0},
+                {"value": 2, "index": 1},
+                {"value": 3, "index": 2},
+            ],
+        ),
+    ],
+    indirect=["populated_linked_list"],
+)
+def test_traverse(populated_linked_list, expected_structure):
+    assert [
+        {"value": node.value, "index": node.index}
+        for node in populated_linked_list.traverse()
+    ] == expected_structure

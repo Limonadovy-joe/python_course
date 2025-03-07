@@ -311,19 +311,16 @@ class LinkedList(Generic[T]):
             return self.prepend(value)
         else:
             new_node = Node(value)
-            current_node = self.head
-            prev_node = None
-            index = 0
 
-            while current_node is not None:
+            for node_info in self.traverse():
 
-                if index == position:
+                if node_info.index == norm_pos:
+                    prev_node = node_info.prev
+                    next_node = (
+                        prev_node.next if node_info.next is None else node_info.next
+                    )
+
                     prev_node.next = new_node
-                    new_node.next = current_node
+                    new_node.next = next_node
+                    self.__increment(1)
                     return
-
-                prev_node = current_node
-                index = index + 1
-                current_node = current_node.next
-
-            self.__increment(1)

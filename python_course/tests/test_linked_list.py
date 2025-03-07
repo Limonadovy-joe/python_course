@@ -152,6 +152,77 @@ def test_find(populated_linked_list, values_to_find, expected_values):
 
 
 @pytest.mark.parametrize(
+    "populated_linked_list, callbacks, expected_values",
+    [
+        (
+            [
+                {"value": 1, "key": "key1"},
+                {"value": 2, "key": "key2"},
+                {"value": 3, "key": "key3"},
+            ],  # Initial linked list
+            [
+                lambda obj: obj.get("key") == "key2",
+                lambda obj: obj.get("value") == 4,
+                lambda obj: obj.get("key") == "key3",
+            ],
+            [
+                {"value": 2, "key": "key2"},
+                None,
+                {"value": 3, "key": "key3"},
+            ],
+        ),
+    ],
+    indirect=["populated_linked_list"],
+)
+def test_find_by_callback(populated_linked_list, callbacks, expected_values):
+    for callback, exp_value in zip(callbacks, expected_values):
+        node = populated_linked_list.find(callback)
+        value = node.value if node else None
+        assert value == exp_value
+
+
+def test_find_by_compare_function():
+    def comparator_function(a, b):
+        if a["value"] == b["value"]:
+            return 0
+        return -1 if a["value"] < b["value"] else 1
+
+    ll = LinkedList(comparator=comparator_function)
+    for obj in [
+        {"value": 1, "key": "key1"},
+        {"value": 2, "key": "key2"},
+        {"value": 3, "key": "key3"},
+    ]:
+        ll.append(obj)
+
+    node3 = ll.find({"value": 3, "key": "key3"})
+
+    assert node3 is not None
+    assert node3.value == {"value": 3, "key": "key3"}
+
+    node10 = ll.find({"value": 10, "key": "key10"})
+    assert node10 is None
+
+
+#   find preferring callback over compare function
+def test_find_by_preffering_callback():
+    def greater_than(current_value, value_to_find):
+        return 0 if current_value > value_to_find else 1
+
+    ll = LinkedList(comparator=greater_than)
+    for i in [1, 2, 3, 4, 5]:
+        ll.append(i)
+
+    node = ll.find(3)
+    assert node is not None
+    assert node.value == 4
+
+    node = ll.find(lambda x: x < 3)
+    assert node is not None
+    assert node.value == 1
+
+
+@pytest.mark.parametrize(
     "populated_linked_list, expected_array",
     [
         (
@@ -199,3 +270,20 @@ def test_traverse(populated_linked_list, expected_structure):
         {"value": node.value, "index": node.index}
         for node in populated_linked_list.traverse()
     ] == expected_structure
+
+
+@pytest.mark.parametrize(
+    "populated_linked_list, expected_structure",
+    [
+        (
+            [
+                {"value": 1, "key": "key1"},
+                {"value": 2, "key": "key2"},
+            ],  # Initial linked list
+            "{value:1,key:key1},{value:2,key:key2}",
+        ),
+    ],
+    indirect=["populated_linked_list"],
+)
+def test_store_objects_and_to_string(populated_linked_list, expected_structure):
+    assert populated_linked_list.to_string() == expected_structure

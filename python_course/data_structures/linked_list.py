@@ -1,9 +1,19 @@
 from dataclasses import dataclass
-from typing import Generic, TypeVar, Optional, Protocol, Union, Callable, Generator
+from typing import (
+    Generic,
+    TypeVar,
+    Optional,
+    Protocol,
+    Union,
+    Callable,
+    Generator,
+    Any,
+)
 
+from python_course.utils.predicate import Predicate
+from python_course.utils.ord import CompareFunction
 
 T = TypeVar("T")
-Predicate = Callable[[T], bool]
 
 
 class NodeInterface(Protocol[T]):
@@ -42,8 +52,9 @@ class Node(Generic[T], NodeInterface[T]):
 
 
 class LinkedList(Generic[T]):
-    def __init__(self):
+    def __init__(self, comparator: Optional[CompareFunction[T]] = None):
         self.length = 0
+        self.comparator = comparator
         self.head: Optional[Node] = None
         self.tail: Optional[Node] = self.head
 
@@ -232,14 +243,19 @@ class LinkedList(Generic[T]):
     def find(self, matcher: Union[T, Predicate[T]]) -> OptionalNode:
 
         current_node = self.head
+        custom_matcher = self.comparator
 
         while current_node is not None:
             current_value = current_node.value
 
+            #   prefer callback over custom comparator
             if callable(matcher) and matcher(current_value):
                 return current_node
-            elif matcher == current_value:
+            elif custom_matcher and custom_matcher(current_value, matcher) == 0:
                 return current_node
+            elif custom_matcher is None and matcher == current_value:
+                return current_node
+
             current_node = current_node.next
 
         return None
@@ -324,3 +340,44 @@ class LinkedList(Generic[T]):
                     new_node.next = next_node
                     self.__increment(1)
                     return
+
+    def is_reference_type(self, obj: T) -> bool:
+        return not isinstance(obj, (int, float, str, bool, bytes, tuple, frozenset))
+
+    def get_object_properties(self, obj: T) -> dict[str, Any]:
+        if isinstance(obj, dict):
+            return {key: value for key, value in obj.items()}
+        elif hasattr("__dict__"):
+            return {
+                key: value
+                for key, value in vars(obj).items()
+                if not callable(value) and not key.startswith("__")
+            }
+        else:
+            raise TypeError(
+                f"Unsupported object type: {type(obj)}. Must be a dictionary or object with attributes."
+            )
+
+    def get_stringifier_by_type(self) -> Callable[[T], str]:
+        value = self.head.value
+        if self.is_reference_type(value):
+            if isinstance(value, (list, tuple)):
+                return (
+                    lambda t: f"[{', '.join(map(str, t))}]"
+                )  # Generic array formatter
+
+            return lambda t: ",".join(
+                f"{key}:{value}" for key, value in self.get_object_properties(t).items()
+            )
+        return lambda t: f"{t}"
+
+    def to_string(self, stringifier: Optional[Callable[[T], str]] = None) -> str:
+        if self.is_empty():
+            return ""
+
+        string_fun = stringifier if stringifier else self.get_stringifier_by_type()
+        output = ""
+        for node_info in self.traverse():
+            comma = "" if node_info.next is None else ","
+            output = output + f"{{{string_fun(node_info.value)}}}" + comma
+        return output

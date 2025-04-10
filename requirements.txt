@@ -2,6 +2,7 @@
 requests==2.31.0
 numpy==1.24.4
 pandas==2.0.3
+PyMonad==2.4.0
 
 # Dev dependencies
 -r requirements-dev.txt

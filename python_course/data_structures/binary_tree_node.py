@@ -1,10 +1,12 @@
-from typing import Generic, TypeVar, Optional, Protocol, List
+from __future__ import annotations
+from typing import Generic, TypeVar, Optional, Protocol, List, TYPE_CHECKING
 
 from python_course.utils.ord import CompareFunction
 
+if TYPE_CHECKING:
+    from python_course.data_structures.binary_tree_node import BinaryTreeNodeInterface
 
 T = TypeVar("T")
-
 
 OptionalBinaryTreeNode = Optional["BinaryTreeNodeInterface[T]"]
 
@@ -12,9 +14,9 @@ OptionalBinaryTreeNode = Optional["BinaryTreeNodeInterface[T]"]
 class BinaryTreeNodeInterface(Protocol[T]):
     value: Optional[T]
     comparator: Optional[CompareFunction[T]]
-    parent: OptionalBinaryTreeNode
-    left: OptionalBinaryTreeNode
-    right: OptionalBinaryTreeNode
+    parent: OptionalBinaryTreeNode[T]
+    left: OptionalBinaryTreeNode[T]
+    right: OptionalBinaryTreeNode[T]
     height: int
 
 
@@ -23,9 +25,9 @@ class BinaryTreeNode(Generic[T], BinaryTreeNodeInterface[T]):
         self,
         value: Optional[T] = None,
         comparator: Optional[CompareFunction[T]] = None,
-        parent: OptionalBinaryTreeNode = None,
-        left: OptionalBinaryTreeNode = None,
-        right: OptionalBinaryTreeNode = None,
+        parent: OptionalBinaryTreeNode[T] = None,
+        left: OptionalBinaryTreeNode[T] = None,
+        right: OptionalBinaryTreeNode[T] = None,
     ):
         self.value = value
 
@@ -45,7 +47,7 @@ class BinaryTreeNode(Generic[T], BinaryTreeNodeInterface[T]):
         return -1 if x < y else 1 if x > y else 0  # Returns -1, 0, or 1
 
     def __reset_parent(
-        self, node: BinaryTreeNodeInterface
+        self, node: BinaryTreeNodeInterface[T]
     ) -> BinaryTreeNodeInterface[T]:
         node.parent = None
         return node
@@ -156,7 +158,7 @@ class BinaryTreeNode(Generic[T], BinaryTreeNodeInterface[T]):
         return uncle
 
     @staticmethod
-    def copy_node(source: OptionalBinaryTreeNode) -> OptionalBinaryTreeNode:
+    def copy_node(source: OptionalBinaryTreeNode[T]) -> OptionalBinaryTreeNode[T]:
         if source is None:
             return None
 

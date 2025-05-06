@@ -1,33 +1,21 @@
 from __future__ import annotations
-from typing import Generic, TypeVar, Optional, Protocol, List, TYPE_CHECKING
+from typing import Generic, TypeVar, Optional, List
 
 from python_course.utils.ord import CompareFunction
 
-if TYPE_CHECKING:
-    from python_course.data_structures.binary_tree_node import BinaryTreeNodeInterface
-
 T = TypeVar("T")
 
-OptionalBinaryTreeNode = Optional["BinaryTreeNodeInterface[T]"]
+OptionalBinaryTreeNode = Optional["BinaryTreeNode[T]"]
 
 
-class BinaryTreeNodeInterface(Protocol[T]):
-    value: Optional[T]
-    comparator: Optional[CompareFunction[T]]
-    parent: OptionalBinaryTreeNode[T]
-    left: OptionalBinaryTreeNode[T]
-    right: OptionalBinaryTreeNode[T]
-    height: int
-
-
-class BinaryTreeNode(Generic[T], BinaryTreeNodeInterface[T]):
+class BinaryTreeNode(Generic[T]):
     def __init__(
         self,
         value: Optional[T] = None,
         comparator: Optional[CompareFunction[T]] = None,
-        parent: OptionalBinaryTreeNode[T] = None,
-        left: OptionalBinaryTreeNode[T] = None,
-        right: OptionalBinaryTreeNode[T] = None,
+        parent: Optional[BinaryTreeNode[T]] = None,
+        left: Optional[BinaryTreeNode[T]] = None,
+        right: Optional[BinaryTreeNode[T]] = None,
     ):
         self.value = value
 
@@ -46,16 +34,14 @@ class BinaryTreeNode(Generic[T], BinaryTreeNodeInterface[T]):
         """Default comparator assuming T supports comparison operators."""
         return -1 if x < y else 1 if x > y else 0  # Returns -1, 0, or 1
 
-    def __reset_parent(
-        self, node: BinaryTreeNodeInterface[T]
-    ) -> BinaryTreeNodeInterface[T]:
+    def __reset_parent(self, node: BinaryTreeNode[T]) -> BinaryTreeNode[T]:
         node.parent = None
         return node
 
     def set_value(self, value: T) -> None:
         self.value = value
 
-    def set_left(self, node: BinaryTreeNodeInterface[T]):
+    def set_left(self, node: BinaryTreeNode[T]):
         if self.left is not None:
             self.__reset_parent(self.left)
 
@@ -65,7 +51,7 @@ class BinaryTreeNode(Generic[T], BinaryTreeNodeInterface[T]):
 
         return self
 
-    def set_right(self, node: BinaryTreeNodeInterface[T]):
+    def set_right(self, node: BinaryTreeNode[T]):
         if self.right is not None:
             self.__reset_parent(self.right)
 
@@ -84,21 +70,23 @@ class BinaryTreeNode(Generic[T], BinaryTreeNodeInterface[T]):
         out = []
 
         if self.has_left():
-            out.extend(self.left.traverse_in_order())
+            if self.left is not None:
+                out.extend(self.left.traverse_in_order())
 
         out.append(self.value)
 
         if self.has_right():
-            out.extend(self.right.traverse_in_order())
+            if self.right is not None:
+                out.extend(self.right.traverse_in_order())
 
         return out
 
     def are_nodes_equal(
-        self, node_fst: BinaryTreeNodeInterface[T], node_snd: BinaryTreeNodeInterface[T]
+        self, node_fst: BinaryTreeNode[T], node_snd: BinaryTreeNode[T]
     ) -> bool:
         return self.comparator(node_fst.value, node_snd.value) == 0
 
-    def remove_child(self, node: BinaryTreeNodeInterface[T]) -> bool:
+    def remove_child(self, node: BinaryTreeNode[T]) -> bool:
         for prop in ["left", "right"]:
             child: OptionalBinaryTreeNode[T] = getattr(self, prop)
             if child is not None and self.are_nodes_equal(child, node):
@@ -109,8 +97,8 @@ class BinaryTreeNode(Generic[T], BinaryTreeNodeInterface[T]):
 
     def replace_child(
         self,
-        node_to_replace: BinaryTreeNodeInterface[T],
-        replacement: BinaryTreeNodeInterface[T],
+        node_to_replace: BinaryTreeNode[T],
+        replacement: BinaryTreeNode[T],
     ) -> bool:
         for prop, child in [("left", self.left), ("right", self.right)]:
             if child is not None and self.are_nodes_equal(child, node_to_replace):

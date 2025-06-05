@@ -1,4 +1,5 @@
 from typing import TypeVar, Optional, Generic, Union, Tuple, Literal, TypeGuard
+from .binary_tree_node import BinaryTreeNode
 
 
 T = TypeVar("T")
@@ -9,7 +10,7 @@ def is_tuple(value: T) -> bool:
     return value is not None
 
 
-class BinarySearchTreeNode(Generic[T]):
+class BinarySearchTreeNode(BinaryTreeNode[T], Generic[T]):
 
     def __init__(
         self,
@@ -17,9 +18,19 @@ class BinarySearchTreeNode(Generic[T]):
         left: Optional["BinarySearchTreeNode[T]"] = None,
         right: Optional["BinarySearchTreeNode[T]"] = None,
     ):
-        self.value = value
-        self.left = left
-        self.right = right
+        super().__init__(
+            value=value,
+            left=(
+                left
+                if isinstance(left, BinarySearchTreeNode) or left is None
+                else BinarySearchTreeNode(left)
+            ),
+            right=(
+                right
+                if isinstance(right, BinarySearchTreeNode) or right is None
+                else BinarySearchTreeNode(right)
+            ),
+        )
         self.meta: dict[str, str] = dict()
 
     def __str__(self) -> str:
@@ -37,22 +48,27 @@ class BinarySearchTreeNode(Generic[T]):
     def to_string(self) -> str:
         return self.__str__()
 
-    def comparator(
-        self, x: "BinarySearchTreeNode[T]", y: "BinarySearchTreeNode[T]"
-    ) -> int:
-        """Default comparator assuming T supports comparison operators."""
-        return (
-            -1 if x.value < y.value else 1 if x.value > y.value else 0
-        )  # Returns -1, 0, or 1
-
     def insert(self, value: T) -> Union["BinarySearchTreeNode[T]", None]:
 
+        new_node = BinarySearchTreeNode(value)
         if self.value is None:
             self.value = value
             return self
 
+        if value < self.value:
+            if self.left is not None:
+                if isinstance(self.left, BinarySearchTreeNode):
+                    return self.left.insert(value)
+            self.set_left(new_node)
+            return new_node
+        elif value > self.value:
+            if self.right is not None:
+                if isinstance(self.right, BinarySearchTreeNode):
+                    return self.right.insert(value)
+            self.set_right(new_node)
+            return new_node
+
         root_to_traverse = self
-        new_node = BinarySearchTreeNode(value)
 
         while root_to_traverse is not None:
             root_value = root_to_traverse.value
@@ -130,7 +146,7 @@ class BinarySearchTreeNode(Generic[T]):
 
         return node_to_find
 
-    def has_left(self) -> TypeError:
+    def has_left(self) -> bool:
         return self.left is not None and self.left.value is not None
 
     def has_right(self) -> bool:

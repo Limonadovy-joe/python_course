@@ -10,7 +10,7 @@
 -  Trie
 -  Tree
     -  Binary Search Tree
-    -  VL Tree
+    -  AVL Tree
     -  Red-lack Tree
     -  Segment Tree - with min/max/sum range queries examples
     -  Fenwick Tree (-inary Indexed Tree)

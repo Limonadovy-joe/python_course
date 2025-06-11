@@ -24,6 +24,7 @@ class BinaryTreeNode(Generic[T]):
         self.parent = parent
         self.left = left
         self.right = right
+        self.meta: dict[str, str] = dict()
 
     def __str__(self):
         if self.value is None:

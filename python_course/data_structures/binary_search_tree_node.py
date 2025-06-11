@@ -31,7 +31,6 @@ class BinarySearchTreeNode(BinaryTreeNode[T], Generic[T]):
                 else BinarySearchTreeNode(right)
             ),
         )
-        self.meta: dict[str, str] = dict()
 
     def __str__(self) -> str:
         def in_order(node):

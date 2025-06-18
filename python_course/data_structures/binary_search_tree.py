@@ -63,7 +63,7 @@ class BinarySearchTree(Generic[T]):
         return self.root.to_string()
 
     def is_root_empty(self) -> bool:
-        return self.root is None and self.root.value is None
+        return self.root is None or self.root.value is None
 
     def insert(self, value: T) -> "BinarySearchTreeNode[T]":
         if self.is_root_empty():

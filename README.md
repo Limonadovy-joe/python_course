@@ -11,7 +11,7 @@
 -  Tree
     -  Binary Search Tree
     -  AVL Tree
-    -  Red-lack Tree
+    -  Red-black Tree
     -  Segment Tree - with min/max/sum range queries examples
     -  Fenwick Tree (-inary Indexed Tree)
 -  Graph (both directed and undirected)
